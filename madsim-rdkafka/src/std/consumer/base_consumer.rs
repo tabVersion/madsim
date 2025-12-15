@@ -410,7 +410,7 @@ where
         }
         self.nonempty_callback = Some(f);
     }
-fn offsets_for_times_sync<T: Into<Timeout>>(
+    fn offsets_for_times_sync<T: Into<Timeout>>(
         &self,
         timestamps: TopicPartitionList,
         timeout: T,
