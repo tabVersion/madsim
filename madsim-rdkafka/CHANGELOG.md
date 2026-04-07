@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `position()` support to `madsim` consumers and align its behavior with
+  normal `librdkafka` mode.
+
 ## [0.4.4] - 2025-06-24
 
 ### Changed
