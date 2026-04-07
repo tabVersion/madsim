@@ -114,15 +114,12 @@ impl Broker {
                 .get_partition(&e.topic, e.partition)
                 .map_err(Error::MessageConsumption)?;
             let msgs = &partition.msgs;
+            if msgs.is_empty() {
+                continue;
+            }
             let start_idx = match e.offset {
-                Offset::Beginning => {
-                    e.offset = Offset::Offset(partition.low_watermark);
-                    partition.low_watermark as usize
-                }
-                Offset::End => {
-                    e.offset = Offset::Offset(partition.high_watermark);
-                    partition.high_watermark as usize
-                }
+                Offset::Beginning => 0,
+                Offset::End => msgs.len() - 1,
                 Offset::Stored => panic!("stored offset is not available"),
                 Offset::Invalid => return Err(Error::MessageConsumption(ErrorCode::NoOffset)),
                 Offset::Offset(offset) => msgs.partition_point(|msg| msg.offset() < offset),
