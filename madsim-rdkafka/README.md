@@ -49,6 +49,27 @@ The following functions are modified to be `async`:
 
 The associated constant `ClientContext::ENABLE_REFRESH_OAUTH_TOKEN` is changed to a function in order to make the trait object-safe.
 
+## Consumer position semantics
+
+`madsim` mode now supports `position()` on `BaseConsumer`, `StreamConsumer`,
+and the `consumer::Consumer` trait.
+
+The simulated behavior is aligned with normal `librdkafka` mode:
+
+- `position()` returns the last consumed message offset + 1 for each assigned
+  partition.
+- It returns `Offset::Invalid` before any message has been consumed for that
+  partition.
+- A successful `seek_partitions()` resets the corresponding partition position
+  back to `Offset::Invalid` until the next message is consumed.
+- Logical `Offset::End` is resolved once against the broker state, so `latest`
+  assignments skip existing messages and only observe newly produced data.
+- Prefetched but not yet returned messages do not advance `position()`.
+
+The `TopicPartitionList` returned by consumer APIs in `madsim` mode now also
+supports `find_partition(topic, partition)`, matching the lookup helper
+available in normal `rdkafka` mode.
+
 ## DNS Resolution
 
 This crate has cherry-picked [a commit] from Materialize to support rewriting broker addresses.

@@ -100,6 +100,18 @@ impl TopicPartitionList {
             .map(|e| TopicPartitionListElem { e })
             .collect()
     }
+
+    /// Given a topic name and a partition number, returns the corresponding list element.
+    pub fn find_partition<'a>(
+        &'a self,
+        topic: &str,
+        partition: i32,
+    ) -> Option<TopicPartitionListElem<'a>> {
+        self.list
+            .iter()
+            .find(|e| e.topic == topic && e.partition == partition)
+            .map(|e| TopicPartitionListElem { e })
+    }
 }
 
 /// One element of the topic partition list.
@@ -128,5 +140,29 @@ impl TopicPartitionListElem<'_> {
     /// Returns the offset.
     pub fn offset(&self) -> Offset {
         self.e.offset
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Offset, TopicPartitionList};
+
+    #[test]
+    fn find_partition_returns_matching_element() {
+        let mut tpl = TopicPartitionList::new();
+        tpl.add_partition_offset("topic1", 0, Offset::Offset(7))
+            .unwrap();
+        tpl.add_partition("topic1", 1);
+
+        let elem = tpl.find_partition("topic1", 0).unwrap();
+        assert_eq!(elem.topic(), "topic1");
+        assert_eq!(elem.partition(), 0);
+        assert_eq!(elem.offset(), Offset::Offset(7));
+
+        let elem = tpl.find_partition("topic1", 1).unwrap();
+        assert_eq!(elem.offset(), Offset::Invalid);
+
+        assert!(tpl.find_partition("topic1", 2).is_none());
+        assert!(tpl.find_partition("topic2", 0).is_none());
     }
 }
