@@ -970,34 +970,19 @@ mod tests {
                 consumer.assign(&assignment).unwrap();
 
                 let initial = consumer.position().unwrap();
-                let initial_offset = initial
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
-                    .unwrap()
-                    .offset();
+                let initial_offset = initial.find_partition("topic", 0).unwrap().offset();
                 assert_eq!(initial_offset, Offset::Invalid);
 
                 assert_eq!(poll_payload(&consumer).await, 1);
                 assert!(!consumer.state.lock().msgs.is_empty());
 
                 let after_first = consumer.position().unwrap();
-                let first_offset = after_first
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
-                    .unwrap()
-                    .offset();
+                let first_offset = after_first.find_partition("topic", 0).unwrap().offset();
                 assert_eq!(first_offset, Offset::Offset(1));
 
                 assert_eq!(poll_payload(&consumer).await, 2);
                 let after_second = consumer.position().unwrap();
-                let second_offset = after_second
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
-                    .unwrap()
-                    .offset();
+                let second_offset = after_second.find_partition("topic", 0).unwrap().offset();
                 assert_eq!(second_offset, Offset::Offset(2));
             })
             .await
@@ -1022,12 +1007,7 @@ mod tests {
 
                 assert_eq!(poll_payload(&consumer).await, 1);
                 let before_seek = consumer.position().unwrap();
-                let before_seek_offset = before_seek
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
-                    .unwrap()
-                    .offset();
+                let before_seek_offset = before_seek.find_partition("topic", 0).unwrap().offset();
                 assert_eq!(before_seek_offset, Offset::Offset(1));
 
                 let mut tpl = TopicPartitionList::new();
@@ -1039,22 +1019,12 @@ mod tests {
                     .unwrap();
 
                 let after_seek = consumer.position().unwrap();
-                let after_seek_offset = after_seek
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
-                    .unwrap()
-                    .offset();
+                let after_seek_offset = after_seek.find_partition("topic", 0).unwrap().offset();
                 assert_eq!(after_seek_offset, Offset::Invalid);
 
                 assert_eq!(poll_payload(&consumer).await, 3);
                 let after_poll = consumer.position().unwrap();
-                let after_poll_offset = after_poll
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
-                    .unwrap()
-                    .offset();
+                let after_poll_offset = after_poll.find_partition("topic", 0).unwrap().offset();
                 assert_eq!(after_poll_offset, Offset::Offset(3));
             })
             .await
@@ -1080,9 +1050,7 @@ mod tests {
                 assert!(consumer.poll(Duration::from_millis(10)).await.is_none());
                 let initial_position = consumer.position().unwrap();
                 let initial_offset = initial_position
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
+                    .find_partition("topic", 0)
                     .unwrap()
                     .offset();
                 assert_eq!(initial_offset, Offset::Invalid);
@@ -1091,12 +1059,7 @@ mod tests {
 
                 assert_eq!(poll_payload(&consumer).await, 3);
                 let after_poll = consumer.position().unwrap();
-                let after_poll_offset = after_poll
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
-                    .unwrap()
-                    .offset();
+                let after_poll_offset = after_poll.find_partition("topic", 0).unwrap().offset();
                 assert_eq!(after_poll_offset, Offset::Offset(3));
             })
             .await
@@ -1120,23 +1083,13 @@ mod tests {
                 consumer.assign(&assignment).unwrap();
 
                 let initial = consumer.position().unwrap();
-                let initial_offset = initial
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
-                    .unwrap()
-                    .offset();
+                let initial_offset = initial.find_partition("topic", 0).unwrap().offset();
                 assert_eq!(initial_offset, Offset::Invalid);
 
                 madsim::time::sleep(Duration::from_millis(1500)).await;
 
                 let before_next = consumer.position().unwrap();
-                let before_next_offset = before_next
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
-                    .unwrap()
-                    .offset();
+                let before_next_offset = before_next.find_partition("topic", 0).unwrap().offset();
                 assert_eq!(before_next_offset, Offset::Invalid);
 
                 let mut stream = consumer.stream();
@@ -1148,12 +1101,7 @@ mod tests {
                 assert_eq!(message.payload(), Some(&[1][..]));
 
                 let after_next = consumer.position().unwrap();
-                let after_next_offset = after_next
-                    .elements_for_topic("topic")
-                    .into_iter()
-                    .find(|elem| elem.partition() == 0)
-                    .unwrap()
-                    .offset();
+                let after_next_offset = after_next.find_partition("topic", 0).unwrap().offset();
                 assert_eq!(after_next_offset, Offset::Offset(1));
             })
             .await

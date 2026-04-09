@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `position()` support to `madsim` consumers and align its behavior with
   normal `librdkafka` mode.
+- Add `TopicPartitionList::find_partition()` to `madsim` mode so consumer
+  results can be queried with the same lookup helper as normal `rdkafka`
+  mode.
 
 ## [0.4.4] - 2025-06-24
 

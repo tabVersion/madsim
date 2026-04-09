@@ -66,6 +66,10 @@ The simulated behavior is aligned with normal `librdkafka` mode:
   assignments skip existing messages and only observe newly produced data.
 - Prefetched but not yet returned messages do not advance `position()`.
 
+The `TopicPartitionList` returned by consumer APIs in `madsim` mode now also
+supports `find_partition(topic, partition)`, matching the lookup helper
+available in normal `rdkafka` mode.
+
 ## DNS Resolution
 
 This crate has cherry-picked [a commit] from Materialize to support rewriting broker addresses.
